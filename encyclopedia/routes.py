@@ -8,8 +8,8 @@ from unsplash.api import Api
 from unsplash.auth import Auth
 
 
-client_id = "7f0e986dc04a85db0cf82380ab183ad10558b03b840bf1deba2f5be58f64ed0b"
-client_secret = "0b34c71c3e7917613b643948add708b0ca7e44767d2d401247e5cd5d85f908bf"
+client_id = ""
+client_secret = ""
 redirect_uri = ""
 code = ""
 

@@ -3,6 +3,18 @@ from flask import render_template, url_for, flash, redirect, request
 from encyclopedia.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from encyclopedia.models import User, Source
 from flask_login import login_user, logout_user, current_user, login_required
+import wikipedia as wiki
+from unsplash.api import Api
+from unsplash.auth import Auth
+
+
+client_id = "7f0e986dc04a85db0cf82380ab183ad10558b03b840bf1deba2f5be58f64ed0b"
+client_secret = "0b34c71c3e7917613b643948add708b0ca7e44767d2d401247e5cd5d85f908bf"
+redirect_uri = ""
+code = ""
+
+auth = Auth(client_id, client_secret, redirect_uri, code=code)
+api = Api(auth)
 
 sources = [
     {
@@ -25,9 +37,19 @@ def about():
     return render_template('about.html', title='about')
 
 
-@app.route('/search')
+@app.route('/search', methods=['POST', 'GET'])
 def search():
-    return render_template('search.html', title='search')
+    if request.form.get('search_results') == None:  #This is avoiding an error where search_results was a bad key because it did not exist since the form had not been sent
+        return render_template('search.html', title='search')
+    else:
+        search_term = request.form['search_results']
+        wik_summary = wiki.summary(search_term)
+        unsplash_json = api.search.photos(search_term)
+        unsplash_pic = unsplash_json['results'][0].links.download
+
+        return render_template('search.html', title='results', wik_summary=wik_summary, search_term=search_term, unsplash_pic=unsplash_pic)
+
+
 
 
 @app.route("/register", methods=['GET', 'POST'])

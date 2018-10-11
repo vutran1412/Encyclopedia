@@ -7,6 +7,18 @@ import secrets
 import os
 from PIL import Image
 from flask_mail import Message
+import wikipedia as wiki
+from unsplash.api import Api
+from unsplash.auth import Auth
+
+
+client_id = ""
+client_secret = ""
+redirect_uri = ""
+code = ""
+
+auth = Auth(client_id, client_secret, redirect_uri, code=code)
+api = Api(auth)
 
 
 sources = [
@@ -30,9 +42,19 @@ def about():
     return render_template('about.html', title='about')
 
 
-@app.route('/search')
+@app.route('/search', methods=['POST', 'GET'])
 def search():
-    return render_template('search.html', title='search')
+    if request.form.get('search_results') == None:  #This is avoiding an error where search_results was a bad key because it did not exist since the form had not been sent
+        return render_template('search.html', title='search')
+    else:
+        search_term = request.form['search_results']
+        wik_summary = wiki.summary(search_term)
+        unsplash_json = api.search.photos(search_term)
+        unsplash_pic = unsplash_json['results'][0].links.download
+
+        return render_template('search.html', title='results', wik_summary=wik_summary, search_term=search_term, unsplash_pic=unsplash_pic)
+
+
 
 
 @app.route("/register", methods=['GET', 'POST'])

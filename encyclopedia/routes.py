@@ -21,20 +21,10 @@ auth = Auth(client_id, client_secret, redirect_uri, code=code)
 api = Api(auth)
 
 
-sources = [
-    {
-        'title': 'Crocodiles',
-        'content': 'Nature\'s deadliest predator',
-        'date_accessed': 'October 10, 2018',
-        'url': 'https://en.wikipedia.org/wiki/Crocodile'
-    }
-]
-
-
 @app.route("/")
 @app.route("/home")
 def home():
-    return render_template('home.html', title='Encyclopedia Researcher', sources=sources)
+    return render_template('home.html', title='Encyclopedia Researcher')
 
 
 @app.route("/about")
@@ -43,18 +33,26 @@ def about():
 
 
 @app.route('/search', methods=['POST', 'GET'])
+@login_required
 def search():
-    if request.form.get('search_results') == None:  #This is avoiding an error where search_results was a bad key because it did not exist since the form had not been sent
-        return render_template('search.html', title='search')
-    else:
-        search_term = request.form['search_results']
-        wik_summary = wiki.summary(search_term)
-        unsplash_json = api.search.photos(search_term)
-        unsplash_pic = unsplash_json['results'][0].links.download
+    # This is avoiding an error where search_results was a bad key
+    # because it did not exist since the form had not been sent
+    try:
+        if request.form.get('search_results') is None:
+            return render_template('search.html', title='search')
+        else:
+            search_term = request.form['search_results']
+            wik_summary = wiki.summary(search_term)
+            unsplash_json = api.search.photos(search_term)
+            unsplash_pic = unsplash_json['results'][0].links.download
 
-        return render_template('search.html', title='results', wik_summary=wik_summary, search_term=search_term, unsplash_pic=unsplash_pic)
-
-
+        return render_template('search.html', title='results', wik_summary=wik_summary,
+                               search_term=search_term, unsplash_pic=unsplash_pic)
+    except wiki.DisambiguationError:
+        flash("Too ambiguous. Please be more specific with your search")
+    except Exception as e:
+        flash("Page doesn't exist for the search")
+        return redirect(url_for('search'))
 
 
 @app.route("/register", methods=['GET', 'POST'])
@@ -140,6 +138,7 @@ def send_reset_email(user):
     If you did not make this request then simply ignore this email and no changes will be made.
     '''
     mail.send(msg)
+
 
 @app.route("/reset_password", methods=['GET', 'POST'])
 def reset_request():

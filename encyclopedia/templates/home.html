@@ -1,5 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
+    {% if current_user.is_authenticated %}
+        <h1 class="article-title">Hello {{ current_user.username }}!</h1>
+    {% else %}
+        <h1 class="article-title">Sign in to start researching</h1>
+    {% endif %}
+    <!-- Place holder to display user saved sources
     {% for source in sources %}
         <article class="media-content-section">
             <div class="media-body">
@@ -11,5 +17,5 @@
                     <small class="text-muted">Full article: <a class="mr-2" href="#">{{ source.url }}</a></small>
                 </div>
         </article>
-    {% endfor %}
+    {% endfor %} -->
 {% endblock content %}

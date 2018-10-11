@@ -8,16 +8,17 @@
     }
     </script>
 
-    <form method="POST" action="/search">
-        Wiki summary and photo : <input type="text" name="search_results">
+        <form method="POST" action="/search">
+           Wiki summary and photo : <input type="text" name="search_results">
         <input type = "submit">
-    </form><br>
-    <button type="button" onclick="clearBox('test3')">Clear</button>
-    <button type="button" onclick="alert('This button will save!')">Save</button>
-    <br>
-    <div id = "test3">
-    <h1>{{ search_term }}</h1>
-    <img src="{{ unsplash_pic }}" style="float: left; margin-right: 50px; margin-bottom: 25px;position: relative, width: 400px; height: 400px; background-position: 50% 50%; background-repeat: no-repeat;background-size: cover;"/>
-    <p>{{ wik_summary }}</p>
-    </div>
+        </form><br>
+        <button type="button" onclick="clearBox('test3')">Clear</button>
+        <button type="button" onclick="alert('This button will save!')">Save</button>
+        <br>
+        <div id = "test3">
+        <h1>{{ search_term }}</h1>
+        <img src="{{ unsplash_pic }}" style="float: left; margin-right: 50px; margin-bottom: 25px;position: relative, width: 400px; height: 400px; background-position: 50% 50%; background-repeat: no-repeat;background-size: cover;"/>
+        <p>{{ wik_summary }}</p>
+        </div>
+
 {% endblock content %}

@@ -35,8 +35,7 @@ def about():
 @app.route('/search', methods=['POST', 'GET'])
 @login_required
 def search():
-    # This is avoiding an error where search_results was a bad key
-    # because it did not exist since the form had not been sent
+
     try:
         if request.form.get('search_results') is None:
             return render_template('search.html', title='search')
@@ -52,7 +51,7 @@ def search():
         flash("Too ambiguous. Please be more specific with your search")
     except Exception as e:
         flash("Page doesn't exist for the search")
-        return redirect(url_for('search'))
+    return redirect(url_for('search'))
 
 
 @app.route("/register", methods=['GET', 'POST'])

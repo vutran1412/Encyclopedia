@@ -19,6 +19,9 @@
                     <h1>{{ search_term }}</h1>
                     <img src="{{ unsplash_pic }}" style="float: left; margin-right: 50px; margin-bottom: 25px;position: relative, width: 400px; height: 400px; background-position: 50% 50%; background-repeat: no-repeat;background-size: cover;"/>
                 <p>{{ wik_summary }}</p>
+                    {% if search_term %}
+                    <p>For the rest of the article<a href="{{ full_url }}"> Click Here</a></p>
+                    {% endif %}
                 </div>
         </div>
     </div>

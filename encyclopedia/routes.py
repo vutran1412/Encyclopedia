@@ -35,18 +35,18 @@ def about():
 @app.route('/search', methods=['POST', 'GET'])
 @login_required
 def search():
-
     try:
         if request.form.get('search_results') is None:
             return render_template('search.html', title='search')
         else:
             search_term = request.form['search_results']
             wik_summary = wiki.summary(search_term)
+            full_url = "https://en.wikipedia.org/wiki/" + search_term
             unsplash_json = api.search.photos(search_term)
             unsplash_pic = unsplash_json['results'][0].links.download
 
         return render_template('search.html', title='results', wik_summary=wik_summary,
-                               search_term=search_term, unsplash_pic=unsplash_pic)
+                               search_term=search_term, unsplash_pic=unsplash_pic, full_url=full_url)
     except wiki.DisambiguationError:
         flash("Too ambiguous. Please be more specific with your search")
     except Exception as e:

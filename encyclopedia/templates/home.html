@@ -3,7 +3,7 @@
     {% if current_user.is_authenticated %}
         <h1 class="article-title">Hello {{ current_user.username }}!</h1>
     {% else %}
-        <h1 class="article-title">Sign in to start researching</h1>
+        <h1 class="article-title">Sign in to start researching...</h1>
     {% endif %}
     <!-- Place holder to display user saved sources
     {% for source in sources %}

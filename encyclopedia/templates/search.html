@@ -1,29 +1,54 @@
 {% extends "layout.html" %}
+{% block content %}
+    <style>
+  .img-fluid {
+  max-width: 50%;
+  height: auto;
+  float: left;
+  margin-right: 25px;
+  margin-bottom: 25px;
+  }
 
-    {% block content %}
-    <div class="row">
-        <div class="col-lg-30">
-        <script>
-            function clearBox(elementID) {
-                document.getElementById(elementID).innerHTML = ""; }
-        </script>
-            <form method="POST" action="/search">
-                Wiki summary and photo :
-                <input type="text" name="search_results">
-                <input type = "submit">
-            </form><br>
-            <button type="button" onclick="clearBox('test3')">Clear</button>
-            <button type="button" onclick="alert('This button will save!')">Save</button>
-            <br>
-                <div id = "test3">
-                    <h1>{{ search_term }}</h1>
-                    <img src="{{ unsplash_pic }}" style="float: left; margin-right: 50px; margin-bottom: 25px;position: relative, width: 400px; height: 400px; background-position: 50% 50%; background-repeat: no-repeat;background-size: cover;"/>
-                <p>{{ wik_summary }}</p>
-                    {% if search_term %}
-                    <p>For the rest of the article<a href="{{ full_url }}"> Click Here</a></p>
-                    {% endif %}
+  #test4 {
+  max-width: 40%;
+  }
+
+   @media screen and (max-width: 479px) {
+    .img-fluid {
+     max-width: 100%;
+     height: auto;
+     }
+     #test4 {
+     max-width: 100%;
+     }
+    }
+    </style>
+    <script>
+        function clearBox(elementID) {
+            document.getElementById(elementID).innerHTML = ""; }
+    </script>
+
+
+    <div>
+            <form id="test4"  method="POST" action="/search">
+                <div class="form group">
+                    <input type="text" size="150" type="submit" name="search_results" class="form-control" id="searchTerm" placeholder="Enter Search Term">
                 </div>
+            </form><br>
+            <button type="button" class="btn btn-outline-primary" onclick="clearBox('clear_search')">Clear</button>
+            <button type="button" class="btn btn-outline-secondary" onclick="alert('This button will save!')">Save</button><br>
+    <br></div>
+    <div class="container">
+        <div id="clear_search">
+            <img src="{{ unsplash_pic }}" class="img-fluid">
+            <h1 style="text-align:center">{{ search_term }}</h1>
+            <p>{{ wik_summary }}</p>
+             {% if search_term %}
+                 <p><b>For the rest of the article<a href="{{ full_url }}" target="_blank"> Click Here</a></b></p>
+             {% endif %}
         </div>
     </div>
+
+
 
 {% endblock content %}

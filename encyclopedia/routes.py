@@ -12,8 +12,8 @@ from unsplash.api import Api
 from unsplash.auth import Auth
 
 
-client_id = os.environ.get('CLIENT_ID')
-client_secret = os.environ.get('CLIENT_SECRET')
+client_id = ""
+client_secret = ""
 redirect_uri = ""
 code = ""
 
@@ -39,7 +39,7 @@ def search():
         if request.form.get('search_results') is None:
             return render_template('search.html', title='search')
         else:
-            search_term = request.form['search_results']
+            search_term = request.form['search_results'].title()
             wik_summary = wiki.summary(search_term)
             full_url = "https://en.wikipedia.org/wiki/" + search_term
             unsplash_json = api.search.photos(search_term)

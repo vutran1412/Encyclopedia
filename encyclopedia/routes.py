@@ -1,6 +1,7 @@
 from encyclopedia import app, db, bcrypt, mail
 from flask import render_template, url_for, flash, redirect, request
-from encyclopedia.forms import RegistrationForm, LoginForm, UpdateAccountForm, RequestResetForm, ResetPasswordForm
+from encyclopedia.forms import RegistrationForm, LoginForm, \
+    UpdateAccountForm, RequestResetForm, ResetPasswordForm, SearchForm
 from encyclopedia.models import User, Source
 from flask_login import login_user, logout_user, current_user, login_required
 import secrets
@@ -32,6 +33,7 @@ def about():
     return render_template('about.html', title='about')
 
 
+
 @app.route('/search', methods=['POST', 'GET'])
 @login_required
 def search():
@@ -39,7 +41,7 @@ def search():
         if request.form.get('search_results') is None:
             return render_template('search.html', title='search')
         else:
-            search_term = request.form['search_results']
+            search_term = request.form['search_results'].title()
             wik_summary = wiki.summary(search_term)
             full_url = "https://en.wikipedia.org/wiki/" + search_term
             unsplash_json = api.search.photos(search_term)
@@ -52,6 +54,7 @@ def search():
     except Exception as e:
         flash("Page doesn't exist for the search")
     return redirect(url_for('search'))
+
 
 
 @app.route("/register", methods=['GET', 'POST'])

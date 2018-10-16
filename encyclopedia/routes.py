@@ -13,8 +13,8 @@ from unsplash.api import Api
 from unsplash.auth import Auth
 
 
-client_id = os.environ.get('CLIENT_ID')
-client_secret = os.environ.get('CLIENT_SECRET')
+client_id = ""
+client_secret = ""
 redirect_uri = ""
 code = ""
 

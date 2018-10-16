@@ -8,11 +8,10 @@
   margin-right: 25px;
   margin-bottom: 25px;
   }
-
+      
   #form_length {
   max-width: 40%;
   }
-
    @media screen and (max-width: 479px) {
     .img-fluid {
      max-width: 100%;
@@ -29,15 +28,19 @@
     </script>
 
 
-    <div>
+     <div>
             <form id="form_length"  method="POST" action="/search">
                 <div class="form group">
-                    <input type="text" size="150" type="submit" name="search_results" class="form-control" id="searchTerm" placeholder="Enter Search Term">
+                    <input type="text" size="150" type="submit"
+                           name="search_results" class="form-control"
+                           id="searchTerm" placeholder="Enter Search Term"><br>
+                    <button type="submit" class="btn btn-outline-primary">Search</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="alert('This button will save!')">Save</button>
+                    <button type="button" class="btn btn-outline-primary" onclick="clearBox('clear_search')">Clear</button>
+                    <br>
                 </div>
-            </form><br>
-            <button type="button" class="btn btn-outline-primary" onclick="clearBox('clear_search')">Clear</button>
-            <button type="button" class="btn btn-outline-secondary" onclick="alert('This button will save!')">Save</button><br>
-    <br></div>
+            </form>
+     </div>
     <div class="container">
         <div id="clear_search">
             <h1 style="text-align:center">{{ search_term }}</h1><br>
@@ -49,6 +52,5 @@
         </div>
     </div>
 
-
-
 {% endblock content %}
+

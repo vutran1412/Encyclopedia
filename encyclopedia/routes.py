@@ -1,7 +1,7 @@
 from encyclopedia import app, db, bcrypt, mail
 from flask import render_template, url_for, flash, redirect, request
 from encyclopedia.forms import RegistrationForm, LoginForm, \
-    UpdateAccountForm, RequestResetForm, ResetPasswordForm, SearchForm
+    UpdateAccountForm, RequestResetForm, ResetPasswordForm
 from encyclopedia.models import User, Source
 from flask_login import login_user, logout_user, current_user, login_required
 import secrets
@@ -33,7 +33,6 @@ def about():
     return render_template('about.html', title='about')
 
 
-
 @app.route('/search', methods=['POST', 'GET'])
 @login_required
 def search():
@@ -51,10 +50,9 @@ def search():
                                search_term=search_term, unsplash_pic=unsplash_pic, full_url=full_url)
     except wiki.DisambiguationError:
         flash("Too ambiguous. Please be more specific with your search")
-    except Exception as e:
+    except Exception:
         flash("Page doesn't exist for the search")
     return redirect(url_for('search'))
-
 
 
 @app.route("/register", methods=['GET', 'POST'])

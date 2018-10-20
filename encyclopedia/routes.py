@@ -1,16 +1,16 @@
 from encyclopedia import app, db, bcrypt, mail
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, session
 from encyclopedia.forms import RegistrationForm, LoginForm, \
-    UpdateAccountForm, RequestResetForm, ResetPasswordForm
-from encyclopedia.models import User, Source
+    UpdateAccountForm, RequestResetForm, ResetPasswordForm, SourceForm
+from encyclopedia.models import User, Source, Anonymous
 from flask_login import login_user, logout_user, current_user, login_required
-import secrets
-import os
+import secrets, os
 from PIL import Image
 from flask_mail import Message
 import wikipedia as wiki
 from unsplash.api import Api
 from unsplash.auth import Auth
+from datetime import datetime
 
 
 client_id = os.environ.get('CLIENT_ID')
@@ -23,14 +23,25 @@ api = Api(auth)
 
 
 @app.route("/")
-@app.route("/home")
+@app.route("/home", methods=['GET', 'POST'])
+@login_required
 def home():
-    return render_template('home.html', title='Encyclopedia Researcher')
+    sources = Source.query.filter(Source.user_id == current_user.id).all()
+    return render_template('home.html', title='Encyclopedia Researcher', sources=sources)
 
 
 @app.route("/about")
 def about():
     return render_template('about.html', title='about')
+
+
+def get_request():
+    search_term = request.form['search_results'].title()
+    wik_summary = wiki.summary(search_term)
+    full_url = "https://en.wikipedia.org/wiki/" + search_term
+    unsplash_json = api.search.photos(search_term)
+    unsplash_pic = unsplash_json['results'][0].links.download
+    return search_term, wik_summary, full_url, unsplash_json, unsplash_pic
 
 
 @app.route('/search', methods=['POST', 'GET'])
@@ -40,20 +51,45 @@ def search():
         if request.form.get('search_results') is None:
             return render_template('search.html', title='search')
         else:
-            search_term = request.form['search_results'].title()
-            wik_summary = wiki.summary(search_term)
-            full_url = "https://en.wikipedia.org/wiki/" + search_term
-            unsplash_json = api.search.photos(search_term)
-            unsplash_pic = unsplash_json['results'][0].links.download
-
-        return render_template('search.html', title='results', wik_summary=wik_summary,
-                               search_term=search_term, unsplash_pic=unsplash_pic, full_url=full_url)
+            search_term, wik_summary, full_url, unsplash_json, unsplash_pic = get_request()
+            session['search_term'] = search_term
+            session['wik_summary'] = wik_summary
+            session['full_url'] = full_url
+            return render_template('search.html', title='results', wik_summary=wik_summary,
+                                   search_term=search_term, unsplash_pic=unsplash_pic,
+                                   full_url=full_url)
     except wiki.DisambiguationError:
         flash("Too ambiguous. Please be more specific with your search")
-    except Exception:
+    except Exception as e:
         flash("Page doesn't exist for the search")
     return redirect(url_for('search'))
 
+
+@app.route("/new", methods=['GET', 'POST'])
+@login_required
+def save_source():
+    form = SourceForm()
+    title = session.get('search_term')
+    content = session.get('wik_summary')
+    url = session.get('full_url')
+    form.title.data = title
+    form.content.data = content
+    form.url.data = url
+    date_saved = datetime.now()
+    date_saved.strftime("%d/%m/%y")
+    source = Source(title=title, date_posted=date_saved, content=content, url=url, user_id=current_user.id)
+    if form.validate_on_submit():
+        db.session.add(source)
+        db.session.commit()
+        flash('Your source has been saved!', 'success')
+        return redirect(url_for('home'))
+    return render_template('save_source.html', title='Save Sources', form=form)
+
+
+@app.route("/new/<int:source_id>", methods=['GET', 'POST'])
+def source(source_id):
+    source = Source.query.get_or_404(source_id)
+    return render_template('source.html', title=source.title, source=source)
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():

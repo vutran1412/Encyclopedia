@@ -40,6 +40,20 @@
                 </div>
             </form>
      </div>
+    <div>
+    {% if disambigCategory %}
+        {% for category,subarray in disambigCategory%}
+            <h2>{{ category }}</h2>
+            <ul>
+            {% for items in subarray %}
+                <form method="POST" action="/search">
+                <li><input type="submit" class="btn btn-link" name="search_results" id="searchTerm" value="{{ items }}"></li>
+                </form>
+            {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
+    </div>
     <div class="container">
         <div id="clear_search">
             <h1 style="text-align:center">{{ search_term }}</h1><br>

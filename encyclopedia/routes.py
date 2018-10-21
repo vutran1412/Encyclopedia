@@ -11,6 +11,8 @@ from flask_mail import Message
 import wikipedia as wiki
 from unsplash.api import Api
 from unsplash.auth import Auth
+from bs4 import BeautifulSoup
+import requests
 
 
 client_id = os.environ.get('CLIENT_ID')
@@ -50,7 +52,42 @@ def search():
         return render_template('search.html', title='results', wik_summary=wik_summary,
                                search_term=search_term, unsplash_pic=unsplash_pic, full_url=full_url)
     except wiki.DisambiguationError:
-        flash("Too ambiguous. Please be more specific with your search")
+        flash("Too ambiguous. Please be more specific with your search or choose an option below", 'danger')
+        search_term = request.form['search_results'].title()
+        full_url = "https://en.wikipedia.org/wiki/" + search_term
+        source = requests.get(full_url).text
+        soup = BeautifulSoup(source, 'lxml')
+        categories = soup.find_all('h2')
+        subItems = soup.find_all('ul')
+        category_count = len(categories)
+        subItem_count = len(subItems)
+        categoryArray = []
+        subItemArray = []
+
+        for x in range(1, category_count -1):
+            h2_span = categories[x].find('span').text
+            categoryArray.append(h2_span)
+
+        for x in range(2, category_count):
+            subArray = []
+            h2_span = subItems[x].find_all('a')
+            for y in range(0, len(h2_span)):
+                try:
+                    item = h2_span[y]
+                    subArray.append(item['title'])
+                except KeyError:
+                    pass
+            subItemArray.append(subArray)
+
+            for array in subItemArray:
+                x = 0
+                if len(array) == 0:
+                    subItemArray.pop(x)
+                x += 1
+
+        print(len(subItemArray))
+        return render_template('search.html', disambigCategory=zip(categoryArray, subItemArray))
+
     except Exception as e:
         flash("Page doesn't exist for the search")
     return redirect(url_for('search'))

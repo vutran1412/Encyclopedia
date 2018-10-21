@@ -2,7 +2,7 @@ from encyclopedia import app, db, bcrypt, mail
 from flask import render_template, url_for, flash, redirect, request, session
 from encyclopedia.forms import RegistrationForm, LoginForm, \
     UpdateAccountForm, RequestResetForm, ResetPasswordForm, SourceForm
-from encyclopedia.models import User, Source, Anonymous
+from encyclopedia.models import User, Source
 from flask_login import login_user, logout_user, current_user, login_required
 import secrets, os
 from PIL import Image
@@ -26,8 +26,10 @@ api = Api(auth)
 @app.route("/home", methods=['GET', 'POST'])
 @login_required
 def home():
-    sources = Source.query.filter(Source.user_id == current_user.id).all()
-    return render_template('home.html', title='Encyclopedia Researcher', sources=sources)
+    page = request.args.get('page', 1, type=int)
+    sources = Source.query.filter(Source.user_id == current_user.id)\
+        .order_by(Source.date_posted.desc()).paginate(page=page, per_page=2)
+    return render_template('home.html', sources=sources)
 
 
 @app.route("/about")
@@ -65,7 +67,7 @@ def search():
     return redirect(url_for('search'))
 
 
-@app.route("/new", methods=['GET', 'POST'])
+@app.route("/source", methods=['GET', 'POST'])
 @login_required
 def save_source():
     form = SourceForm()
@@ -77,19 +79,56 @@ def save_source():
     form.url.data = url
     date_saved = datetime.now()
     date_saved.strftime("%d/%m/%y")
-    source = Source(title=title, date_posted=date_saved, content=content, url=url, user_id=current_user.id)
     if form.validate_on_submit():
+        source = Source(title=form.title.data, date_posted=date_saved,
+                        content=form.content.data,
+                        url=form.url.data, user_id=current_user.id)
+        source.title = form.title.data
+        source.content = form.content.data
+        source.url = form.url.data
         db.session.add(source)
         db.session.commit()
         flash('Your source has been saved!', 'success')
         return redirect(url_for('home'))
-    return render_template('save_source.html', title='Save Sources', form=form)
+    return render_template('save_source.html', title='Save Sources', form=form,  legend='New Source')
 
 
-@app.route("/new/<int:source_id>", methods=['GET', 'POST'])
+@app.route("/source/<int:source_id>")
 def source(source_id):
     source = Source.query.get_or_404(source_id)
     return render_template('source.html', title=source.title, source=source)
+
+
+@app.route("/source/<int:source_id>/update", methods=['GET', 'POST'])
+@login_required
+def update_source(source_id):
+    source = Source.query.get_or_404(source_id)
+    form = SourceForm()
+    if form.validate_on_submit():
+        source.title = form.title.data
+        source.content = form.content.data
+        source.url = form.url.data
+        db.session.commit()
+        flash('Your source has been updated!', 'success')
+        return redirect(url_for('source', source_id=source.id))
+    elif request.method == 'GET':
+        form.title.data = source.title
+        form.content.data = source.content
+        form.url.data = source.url
+    return render_template('save_source.html', title='Update Sources',
+                           form=form, legend='Update Source')
+
+
+@app.route("/source/<int:source_id>/delete", methods=['POST'])
+@login_required
+def delete_source(source_id):
+    source = Source.query.get_or_404(source_id)
+    db.session.delete(source)
+    db.session.commit()
+    flash('Your source has been deleted!', 'success')
+    return redirect(url_for('home'))
+
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():

@@ -28,16 +28,29 @@
                 <div class="form group">
                     <input type="text submit" size="150"
                            name="search_results" class="form-control"
-                           id="searchTerm" placeholder="Enter Search Term"><br>
+                           id="search_term" placeholder="Enter Search Term"><br>
                     <div>
                         <button type="submit" class="btn btn-outline-info">Search</button>
                         <a class="btn btn-outline-info" href="/search">Clear</a>
                         <br>
                     </div>
-
                 </div>
             </form>
      </div>
+    <div>
+    {% if disambigCategory %}
+        {% for category,subarray in disambigCategory%}
+            <h2>{{ category }}</h2>
+            <ul>
+            {% for items in subarray %}
+                <form method="POST" action="/search">
+                <li><input type="submit" class="btn btn-link" name="search_results" id="search_term" value="{{ items }}"></li>
+                </form>
+            {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
+    </div>
     <div class="container">
         <div id="clear_search">
             <h1 style="text-align:center">{{ search_term }}</h1><br>

@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from flask_login import current_user
 from encyclopedia.models import User
@@ -73,6 +73,8 @@ class ResetPasswordForm(FlaskForm):
 
 
 class SourceForm(FlaskForm):
-    search = StringField('Search', validators=[DataRequired()])
-    submit = SubmitField('Search')
+    title = StringField('Title', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()])
+    url = StringField('URL', validators=[DataRequired()])
+    submit = SubmitField('Save Source')
 

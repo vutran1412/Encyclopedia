@@ -1,7 +1,7 @@
 from encyclopedia import app, db, bcrypt, mail
-from flask import render_template, url_for, flash, redirect, request
+from flask import render_template, url_for, flash, redirect, request, session
 from encyclopedia.forms import RegistrationForm, LoginForm, \
-    UpdateAccountForm, RequestResetForm, ResetPasswordForm
+    UpdateAccountForm, RequestResetForm, ResetPasswordForm, SourceForm
 from encyclopedia.models import User, Source
 from flask_login import login_user, logout_user, current_user, login_required
 import secrets
@@ -13,6 +13,8 @@ from unsplash.api import Api
 from unsplash.auth import Auth
 from bs4 import BeautifulSoup
 import requests
+from datetime import datetime
+
 
 
 client_id = os.environ.get('CLIENT_ID')
@@ -25,14 +27,27 @@ api = Api(auth)
 
 
 @app.route("/")
-@app.route("/home")
+@app.route("/home", methods=['GET', 'POST'])
+@login_required
 def home():
-    return render_template('home.html', title='Encyclopedia Researcher')
+    page = request.args.get('page', 1, type=int)
+    sources = Source.query.filter(Source.user_id == current_user.id)\
+        .order_by(Source.date_posted.desc()).paginate(page=page, per_page=2)
+    return render_template('home.html', sources=sources)
 
 
 @app.route("/about")
 def about():
     return render_template('about.html', title='about')
+
+
+def get_request():
+    search_term = request.form['search_results'].title()
+    wik_summary = wiki.summary(search_term)
+    full_url = "https://en.wikipedia.org/wiki/" + search_term
+    unsplash_json = api.search.photos(search_term)
+    unsplash_pic = unsplash_json['results'][0].links.download
+    return search_term, wik_summary, full_url, unsplash_json, unsplash_pic
 
 
 @app.route('/search', methods=['POST', 'GET'])
@@ -42,20 +57,19 @@ def search():
         if request.form.get('search_results') is None:
             return render_template('search.html', title='search')
         else:
-            search_term = request.form['search_results'].title()
-            wik_summary = wiki.summary(search_term)
-            full_url = "https://en.wikipedia.org/wiki/" + search_term
-            unsplash_json = api.search.photos(search_term)
-            unsplash_pic = unsplash_json['results'][0].links.download
-
-        return render_template('search.html', title='results', wik_summary=wik_summary,
-                               search_term=search_term, unsplash_pic=unsplash_pic, full_url=full_url)
+            search_term, wik_summary, full_url, unsplash_json, unsplash_pic = get_request()
+            session['search_term'] = search_term
+            session['wik_summary'] = wik_summary
+            session['full_url'] = full_url
+            return render_template('search.html', title='results', wik_summary=wik_summary,
+                                   search_term=search_term, unsplash_pic=unsplash_pic,
+                                   full_url=full_url)
     except wiki.DisambiguationError:
         flash("Too ambiguous. Please be more specific with your search or choose an option below", 'danger')
         search_term = request.form['search_results'].title()
         full_url = "https://en.wikipedia.org/wiki/" + search_term
         source = requests.get(full_url).text
-        soup = BeautifulSoup(source, 'lxml')
+        soup = BeautifulSoup(source, 'html.parser')
         categories = soup.find_all('h2')
         subItems = soup.find_all('ul')
         category_count = len(categories)
@@ -84,9 +98,73 @@ def search():
                 x += 1
         print(len(subItemArray))
         return render_template('search.html', disambigCategory=zip(categoryArray, subItemArray))
-    except Exception as e:
+
+    except Exception:
         flash("Page doesn't exist for the search")
     return redirect(url_for('search'))
+
+
+@app.route("/source", methods=['GET', 'POST'])
+@login_required
+def save_source():
+    form = SourceForm()
+    title = session.get('search_term')
+    content = session.get('wik_summary')
+    url = session.get('full_url')
+    form.title.data = title
+    form.content.data = content
+    form.url.data = url
+    date_saved = datetime.now()
+    date_saved.strftime("%d/%m/%y")
+    if form.validate_on_submit():
+        source = Source(title=form.title.data, date_posted=date_saved,
+                        content=form.content.data,
+                        url=form.url.data, user_id=current_user.id)
+        source.title = form.title.data
+        source.content = form.content.data
+        source.url = form.url.data
+        db.session.add(source)
+        db.session.commit()
+        flash('Your source has been saved!', 'success')
+        return redirect(url_for('home'))
+    return render_template('save_source.html', title='Save Sources', form=form,  legend='New Source')
+
+
+@app.route("/source/<int:source_id>")
+def source(source_id):
+    source = Source.query.get_or_404(source_id)
+    return render_template('source.html', title=source.title, source=source)
+
+
+@app.route("/source/<int:source_id>/update", methods=['GET', 'POST'])
+@login_required
+def update_source(source_id):
+    source = Source.query.get_or_404(source_id)
+    form = SourceForm()
+    if form.validate_on_submit():
+        source.title = form.title.data
+        source.content = form.content.data
+        source.url = form.url.data
+        db.session.commit()
+        flash('Your source has been updated!', 'success')
+        return redirect(url_for('source', source_id=source.id))
+    elif request.method == 'GET':
+        form.title.data = source.title
+        form.content.data = source.content
+        form.url.data = source.url
+    return render_template('save_source.html', title='Update Sources',
+                           form=form, legend='Update Source')
+
+
+@app.route("/source/<int:source_id>/delete", methods=['POST'])
+@login_required
+def delete_source(source_id):
+    source = Source.query.get_or_404(source_id)
+    db.session.delete(source)
+    db.session.commit()
+    flash('Your source has been deleted!', 'success')
+    return redirect(url_for('home'))
+
 
 
 @app.route("/register", methods=['GET', 'POST'])

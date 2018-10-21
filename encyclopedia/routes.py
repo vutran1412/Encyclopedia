@@ -1,7 +1,7 @@
 from encyclopedia import app, db, bcrypt, mail
 from flask import render_template, url_for, flash, redirect, request
 from encyclopedia.forms import RegistrationForm, LoginForm, \
-    UpdateAccountForm, RequestResetForm, ResetPasswordForm, SearchForm
+    UpdateAccountForm, RequestResetForm, ResetPasswordForm
 from encyclopedia.models import User, Source
 from flask_login import login_user, logout_user, current_user, login_required
 import secrets
@@ -33,7 +33,6 @@ def home():
 @app.route("/about")
 def about():
     return render_template('about.html', title='about')
-
 
 
 @app.route('/search', methods=['POST', 'GET'])
@@ -78,20 +77,16 @@ def search():
                 except KeyError:
                     pass
             subItemArray.append(subArray)
-
             for array in subItemArray:
                 x = 0
                 if len(array) == 0:
                     subItemArray.pop(x)
                 x += 1
-
         print(len(subItemArray))
         return render_template('search.html', disambigCategory=zip(categoryArray, subItemArray))
-
     except Exception as e:
         flash("Page doesn't exist for the search")
     return redirect(url_for('search'))
-
 
 
 @app.route("/register", methods=['GET', 'POST'])

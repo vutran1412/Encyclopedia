@@ -1,15 +1,30 @@
 {% extends "layout.html" %}
 {% block content %}
-    {% for source in sources %}
+    {% if current_user.is_authenticated %}
+        <h1 class="article-title">Hello {{ current_user.username }}!</h1>
+        <h2>Here are some of your saved sources...</h2>
+        {% for source in sources.items %}
         <article class="media-content-section">
             <div class="media-body">
-                <h2><a class="article-title" href="#">{{ source.title}}</a></h2>
+                <h2><a class="article-title" href="{{ url_for('source', source_id=source.id) }}">{{ source.title }}</a></h2>
                 <p class="article-content">{{ source.content }}</p>
             </div>
             <div class="article-metadata">
-                    <small class="text-muted">Accessed on: {{ source.date_accessed }}</small>
-                    <small class="text-muted">Full article: <a class="mr-2" href="#">{{ source.url }}</a></small>
+                    <small class="text-muted">Accessed on {{ source.date_posted.strftime('%Y-%m-%d') }}</small>
+                    <small class="text-muted">Full article: <a class="mr-2" href="{{ source.url }}" target="_blank">{{ source.url }}</a></small>
                 </div>
         </article>
+        {% endfor %}
+    {% for page_num in sources.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+      {% if page_num %}
+        {% if sources.page == page_num %}
+          <a class="btn btn-info mb-4" href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
+        {% else %}
+          <a class="btn btn-outline-info mb-4" href="{{ url_for('home', page=page_num) }}">{{ page_num }}</a>
+        {% endif %}
+      {% else %}
+        ...
+      {% endif %}
     {% endfor %}
+    {% endif %}
 {% endblock content %}

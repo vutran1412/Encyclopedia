@@ -1,4 +1,70 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h1>Search</h1>
+<style xmlns="http://www.w3.org/1999/html">
+  .img-fluid {
+  max-width: 60%;
+  height: auto;
+  float: left;
+  margin-right: 25px;
+  margin-bottom: 25px;
+  }
+      
+  #form_length {
+  max-width: 40%;
+  }
+   @media screen and (max-width: 479px) {
+    .img-fluid {
+     max-width: 100%;
+     height: auto;
+     }
+     #form_length {
+     max-width: 100%;
+     }
+    }
+    </style>
+
+     <div>
+            <form id="form_length"  method="POST" action="/search">
+                <div class="form group">
+                    <input type="text submit" size="150"
+                           name="search_results" class="form-control"
+                           id="search_term" placeholder="Enter Search Term"><br>
+                    <div>
+                        <button type="submit" class="btn btn-outline-info">Search</button>
+                        <a class="btn btn-outline-info" href="/search">Clear</a>
+                        <br>
+                    </div>
+                </div>
+            </form>
+     </div>
+    <div>
+    {% if disambigCategory %}
+        {% for category,subarray in disambigCategory%}
+            <h2>{{ category }}</h2>
+            <ul>
+            {% for items in subarray %}
+                <form method="POST" action="/search">
+                <li><input type="submit" class="btn btn-link" name="search_results" id="search_term" value="{{ items }}"></li>
+                </form>
+            {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
+    </div>
+    <div class="container">
+        <div id="clear_search">
+            <h1 style="text-align:center">{{ search_term }}</h1><br>
+            <img src="{{ unsplash_pic }}" class="img-fluid">
+            <p>{{ wik_summary }}</p>
+             {% if search_term %}
+            <p><b>For the rest of the article<a href="{{ full_url }}"> Click Here</a></b></p>
+            <a class="btn btn-outline-info" href="/source">Save Source</a>
+             {% endif %}
+        </div>
+    </div>
+
+
+
+
 {% endblock content %}
+

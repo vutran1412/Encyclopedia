@@ -1,7 +1,7 @@
 from encyclopedia import db, login_manager, app
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from datetime import datetime
-from flask_login import UserMixin, AnonymousUserMixin
+from flask_login import UserMixin
 
 
 @login_manager.user_loader

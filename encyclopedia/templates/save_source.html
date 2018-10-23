@@ -3,9 +3,18 @@
 
 <style xmlns="http://www.w3.org/1999/html">
     #main_section {
-        width: 1200px;
+        width: 800px;
+  }
+    @media screen and (max-width: 479px) {
+        #main_section {
+            max-width: 100%;
+        }
     }
+
     </style>
+
+
+<div>
     <div class="content-section" id="main_section">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
@@ -49,11 +58,12 @@
                     {% else %}
                         {{ form.url(class="form-control form-control-lg") }}
                     {% endif %}
-                </div>
+                 </div>
             </fieldset>
             <div class="form-group">
                 {{ form.submit(class="btn btn-outline-info") }}
             </div>
-            </form>
+        </form>
     </div>
+</div>
 {% endblock content %}

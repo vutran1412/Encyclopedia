@@ -10,7 +10,7 @@
         <small class="text-muted">Accessed on {{ source.date_posted.strftime('%Y-%m-%d') }}</small>
         <small class="text-muted">Full article: <a class="mr-2" href="{{ source.url }}" target="_blank">{{ source.url }}</a></small>
         <div>
-            <a class="btn btn-outline-info mt-1 mb-1" href="{{ url_for('update_source', source_id=source.id) }}">Update</a>
+            <a class="btn btn-outline-info mt-1 mb-1" href="{{ url_for('update_source', source_id=source.id) }}">Edit</a>
             <button type="button" class="btn btn-danger mt-1 mb-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
         </div>
     </div>

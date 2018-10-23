@@ -78,3 +78,9 @@ a.article-title:hover {
 .account-heading {
   font-size: 2.5rem;
 }
+
+@media (min-width: 1200px) {
+    .container {
+        max-width: 970px;
+    }
+}

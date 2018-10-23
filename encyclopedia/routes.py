@@ -108,18 +108,14 @@ def search():
 @login_required
 def save_source():
     form = SourceForm()
-    title = session.get('search_term')
-    content = session.get('wik_summary')
-    url = session.get('full_url')
-    form.title.data = title
-    form.content.data = content
-    form.url.data = url
+    form.title.data = session.get('search_term')
+    form.content.data = session.get('wik_summary')
+    form.url.data = session.get('full_url')
     date_saved = datetime.now()
-    date_saved.strftime("%d/%m/%y")
+    source = Source(title=form.title.data, date_posted=date_saved,
+                    content=form.content.data,
+                    url=form.url.data, user_id=current_user.id)
     if form.validate_on_submit():
-        source = Source(title=form.title.data, date_posted=date_saved,
-                        content=form.content.data,
-                        url=form.url.data, user_id=current_user.id)
         source.title = form.title.data
         source.content = form.content.data
         source.url = form.url.data
@@ -127,7 +123,7 @@ def save_source():
         db.session.commit()
         flash('Your source has been saved!', 'success')
         return redirect(url_for('home'))
-    return render_template('save_source.html', title='Save Sources', form=form,  legend='New Source')
+    return render_template('save_source.html', title='Save Sources', form=form,  legend='New Source', source=source)
 
 
 @app.route("/source/<int:source_id>")

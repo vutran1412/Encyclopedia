@@ -65,12 +65,17 @@ def search():
                                    search_term=search_term, unsplash_pic=unsplash_pic,
                                    full_url=full_url)
     except wiki.DisambiguationError:
+        # If there is more than one search result a DisambiguationError occurs.
+        # We will accept and get the page from wikipedia.
         flash("Too ambiguous. Please be more specific with your search or choose an option below", 'danger')
         search_term = request.form['search_results'].title()
         full_url = "https://en.wikipedia.org/wiki/" + search_term
+        # Using the Beautiful soup webscrapper to grab the search terms and categories.
         source = requests.get(full_url).text
         soup = BeautifulSoup(source, 'html.parser')
+        # Finds Categories
         categories = soup.find_all('h2')
+        # Finds search terms
         subItems = soup.find_all('ul')
         category_count = len(categories)
         subItem_count = len(subItems)
@@ -78,20 +83,26 @@ def search():
         subItemArray = []
 
         for x in range(1, category_count -1):
+            # Loops through categories and adds to categoryArray
             h2_span = categories[x].find('span').text
             categoryArray.append(h2_span)
 
         for x in range(2, category_count):
+            # Loops through list of search terms contained in an unordered list and anchor tags.
             subArray = []
             h2_span = subItems[x].find_all('a')
             for y in range(0, len(h2_span)):
+                # Then loops through the anchor taged items and adds them to the subArray
                 try:
                     item = h2_span[y]
                     subArray.append(item['title'])
                 except KeyError:
+                    # Accepts a error if there isnt an item with an anchor tag.
                     pass
+                # Adds to subItemArray.
             subItemArray.append(subArray)
             for array in subItemArray:
+                # Checks for empty arrays due to passing KeyError and gets rid of them.
                 x = 0
                 if len(array) == 0:
                     subItemArray.pop(x)

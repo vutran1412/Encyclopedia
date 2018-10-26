@@ -1,25 +1,23 @@
 {% extends "layout.html" %}
 {% block content %}
 
-<style xmlns="http://www.w3.org/1999/html">
-    #main_section {
-        width: 800px;
-  }
-    @media screen and (max-width: 479px) {
-        #main_section {
-            max-width: 100%;
-        }
+{% block styles %}
+<style>
+    .col-lg-6 {
+        align-self: center;
+        width: 650px;
     }
 
     </style>
+{% endblock styles %}
 
-
-<div>
-    <div class="content-section" id="main_section">
+<div class="row">
+    <div class="col-lg-6 col-lg-offset-3">
+    <div class="content-section">
         <form method="POST" action="">
             {{ form.hidden_tag() }}
             <fieldset class="form-group">
-                <legend class="border-bottom mb-60">{{ legend }}</legend>
+                <legend class="border-bottom mb-4">{{ legend }}</legend>
                 <div class="form-group">
                     {{ form.title.label(class="form-control-label") }}
                     {% if form.title.errors %}
@@ -65,5 +63,7 @@
             </div>
         </form>
     </div>
+    </div>
+</div>
 </div>
 {% endblock content %}

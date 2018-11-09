@@ -25,6 +25,7 @@ code = ""
 auth = Auth(client_id, client_secret, redirect_uri, code=code)
 api = Api(auth)
 
+
 # The home route this is the default page, user must be logged in to see all the saved sources
 @app.route("/")
 @app.route("/home", methods=['GET', 'POST']) # The home route accepts both the GET and POST methods

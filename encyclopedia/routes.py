@@ -284,7 +284,7 @@ def save_picture(form_picture):
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
     # saves the picture path from user's machine to static/profile pics folder
-    picture_path = os.path.join(app.root_path, 'static/profile_pics', picture_fn)
+    picture_path = os.path.join(__init__.root_path, 'static/profile_pics', picture_fn)
 
     # picture's max out put in the form of a thumbnail
     output_size = (125, 125)

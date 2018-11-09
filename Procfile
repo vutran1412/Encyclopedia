@@ -1,1 +1,1 @@
-web: flask db upgrade; web: gunicorn lazy-tutor:app;
+web: gunicorn app:app

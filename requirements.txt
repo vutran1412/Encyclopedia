@@ -29,6 +29,6 @@ six==1.10.0
 SQLAlchemy==1.2.12
 unsplash==1.0.0a2
 urllib3==1.23
-Werkzeug==0.14.1
+Werkzeug==0.15.3
 wikipedia==1.4.0
 WTForms==2.2.1

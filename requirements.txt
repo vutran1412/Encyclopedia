@@ -28,7 +28,7 @@ requests-oauthlib==0.7.0
 six==1.10.0
 SQLAlchemy==1.2.12
 unsplash==1.0.0a2
-urllib3==1.23
+urllib3==1.26.5
 Werkzeug==0.14.1
 wikipedia==1.4.0
 WTForms==2.2.1
